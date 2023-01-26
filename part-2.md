@@ -166,11 +166,11 @@ Here is a summary of the process:
 
 It's important to notice that the ServeMux does not handle the request itself, it just route it to the appropriate handler based on the request's URL path. The handler is responsible for handling the request and writing the response.
 
-The code uses the "http.ListenAndServe" function to start an HTTP server. This function takes two arguments: an address (in the form of an IP address and a port number), and an HTTP handler. In this case, the address provided is ":9090" which is a shorthand for "any IP address on port 9090". The second argument is a variable "sm" which is a ServeMux, it is a multiplexer for HTTP requests.
+The code uses the **http.ListenAndServe** function to start an HTTP server. This function takes two arguments: an address (in the form of an IP address and a port number), and an HTTP handler. In this case, the address provided is **:9090** which is a shorthand for *any IP address on port 9090*. The second argument is a variable **sm** which is a ServeMux, it is a multiplexer for HTTP requests.
 
-By default, if no handler is provided as the second argument, the "http.ListenAndServe" function will use the default ServeMux. However, in this case, we want to use our own ServeMux instead of the default one. We create a new ServeMux by calling the "http.NewServeMux()" function, and register a handler for the root path ("/") to it by calling the "sm.Handle("/", hh)" method.
+By default, if no handler is provided as the second argument, the **http.ListenAndServe** function will use the default ServeMux. However, in this case, we want to use our own ServeMux instead of the default one. We create a new ServeMux by calling the **http.NewServeMux()** function, and register a handler for the root path ("/") to it by calling the **sm.Handle("/", hh)** method.
 
-Finally, we pass our custom ServeMux to the "http.ListenAndServe" function, so that it uses our ServeMux to handle all incoming requests.
+Finally, we pass our custom ServeMux to the **http.ListenAndServe** function, so that it uses our ServeMux to handle all incoming requests.
 
 In short, the code creates an HTTP server on port 9090 and uses a custom ServeMux, which is configured to handle requests for the root path ("/") with a specific handler. This handler is created using the "handlers" package and passed a log object for logging.
 ```go
@@ -190,6 +190,52 @@ func main(){
 
     sm := http.NewServeMux()
     sm.Handle("/", hh)
+
+    http.ListenAndServe(":9090", sm)
+}
+```
+
+Now we will add our second handler i.e goodbye handler. create **goodbye.go** under **handlers** and add the below code.
+```go
+package handlers
+import (
+    "log"
+    "net/http"
+)
+
+type Goodbye struct {
+    l *log.Logger
+}
+
+func NewGoodbye(l *log.Logger) *Goodbye {
+    return &Goodbye{l}
+}
+
+func (g *Goodbye) ServeHTTP(rw http.ResponseWriter, r *http.Request){
+    rw.Write([]byte("Byee"))
+}
+```
+
+we need to add that in our **main.go**
+```go
+package main
+
+import (
+    "fmt"
+    "working/handlers"
+    "io/ioutil"
+    "log"
+    "net/http"
+    "os"
+)
+func main(){
+    l := log.New(os.Stdout, "product-api", log.LstdFlags)
+    hh := handlers.NewHello(l)
+    gh := handlers.NewGoodbye(l)
+
+    sm := http.NewServeMux()
+    sm.Handle("/", hh)
+    sm.Handle("/goodbye", gh)
 
     http.ListenAndServe(":9090", sm)
 }
