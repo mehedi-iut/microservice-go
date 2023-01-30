@@ -240,3 +240,113 @@ func main(){
     http.ListenAndServe(":9090", sm)
 }
 ```
+
+The timeout in Golang is important because it helps manage the finite resources of a server. When a client connects to a server and performs an action, it creates a blocked connection. If there are too many blocked connections, the server will stop responding to new requests. To prevent this, we can fine-tune the server by creating a new [http.Server](https://pkg.go.dev/net/http#Server). In the documentation, there are options for adjusting the ReadTimeout, WriteTimeout, and IdleTimeout. The ReadTimeout can be set to a large or small value depending on the size of the file being read. The WriteTimeout depends on the amount of data being sent. The IdleTimeout manages the connection duration. Keeping the connection open with the same client can improve performance by reducing the time needed for DNS queries, TCP handshakes, and other processes. This is especially useful when there are many micro-services connecting to each other. When using TLS, which is a bit more time-consuming to establish a connection, it is important to keep the connection open. For random clients, the IdleTimeout should be set to a low value.
+
+```go
+package main
+
+import (
+    "fmt"
+    "working/handlers"
+    "io/ioutil"
+    "log"
+    "net/http"
+    "os"
+)
+func main(){
+    l := log.New(os.Stdout, "product-api", log.LstdFlags)
+    hh := handlers.NewHello(l)
+    gh := handlers.NewGoodbye(l)
+
+    sm := http.NewServeMux()
+    sm.Handle("/", hh)
+    sm.Handle("/goodbye", gh)
+
+    s := &http.Server{
+        Addr: ":9090",
+        Handler: sm,
+        IdleTimeout: 120*time.Second,
+        ReadTimeout: 1*time.Second,
+        WriteTimeout: 1*time.Second,
+    }
+
+    s.ListenAndServer()
+}
+```
+
+
+Now we need to add the **Graceful Shutdown**. Graceful shutdown is a process in which a server stops accepting new connections and waits for existing connections to complete before shutting down. This ensures that ongoing requests are not disrupted and allows for a clean and orderly termination of the server, avoiding any loss of data or incomplete requests. A graceful shutdown allows the server to complete any remaining work, free up resources, and ensure that the shutdown is performed in a controlled manner.
+
+In go server we can use **Shutdown**[link](https://pkg.go.dev/net/http#Server.Shutdown) function. it accepts two parameters, **context** and **timeout**. It is used for graceful shutdown.
+
+
+```go
+package main
+
+import (
+    "fmt"
+    "working/handlers"
+    "io/ioutil"
+    "log"
+    "net/http"
+    "os"
+)
+func main(){
+    l := log.New(os.Stdout, "product-api", log.LstdFlags)
+    hh := handlers.NewHello(l)
+    gh := handlers.NewGoodbye(l)
+
+    sm := http.NewServeMux()
+    sm.Handle("/", hh)
+    sm.Handle("/goodbye", gh)
+
+    s := &http.Server{
+        Addr: ":9090",
+        Handler: sm,
+        IdleTimeout: 120*time.Second,
+        ReadTimeout: 1*time.Second,
+        WriteTimeout: 1*time.Second,
+    }
+
+    go func(){
+        err := s.ListenAndServe()
+        if err != nil {
+            l.Fatal(err)
+        }
+    }()
+
+    sigChan := make(chan os.Signal)
+    signal.Notify(sigChan, os.Interrupt)
+    signal.Notify(sigChan, os.Kill)
+
+    sig := <-sigChan
+    l.Println("Recived terminate, graceful shutdown", sig)
+
+    tc, _ := context.WithTimeout(context.Background(), 30*time.Second)
+    s.Shutdown(tc)
+}
+```
+
+This code is for starting an HTTP server in Go and handling a graceful shutdown.
+
+* The first section starts a goroutine (concurrent function) which calls the ListenAndServe method on the "s" server object. If there is an error, it is logged using the "l" logger.
+
+* The second section sets up a channel, "sigChan", to receive system signals. The function "signal.Notify" is called twice to register this channel to receive either an "Interrupt" or "Kill" signal.
+
+* The third section waits for a signal to be received on the "sigChan" channel, and logs the received signal.
+
+* The final section creates a timeout context, "tc", with a timeout of 30 seconds using the "WithTimeout" function from the "context" package. The server's "Shutdown" method is then called with this context, allowing it to initiate a graceful shutdown by closing any new incoming connections and allowing existing connections to complete.
+
+*Why goroutine is needed in this case?*
+
+A goroutine is used in this case to run the server in a concurrent manner, allowing it to handle multiple requests in parallel without blocking the main execution flow of the program.
+
+Using a goroutine in this case ensures that the server can continue running and handling requests while the main function continues to execute. This is important because the main function must wait for a signal to initiate a graceful shutdown, and it would not be able to do so if it were blocked by the server.
+
+By running the server in a separate goroutine, the main function can continue to run and handle the shutdown process while the server continues to operate in the background. This allows for a clean and efficient handling of the server shutdown, without interrupting ongoing requests or causing any data loss.
+
+```go
+sig := <-sigChan
+```
+using this code block, we pause the execution of main program and the below code will not execute untill the we recieve any signal in our channel. when we recieve the signal from the channel, then the rest of the code will execute
