@@ -50,10 +50,6 @@ func (p *Products) ServeHTTP(rw http.ResponseWriter, r *http.Request){
 		}
 
 		p.l.Println("got id", id)
-		
-
-
-
 
 	}
 
