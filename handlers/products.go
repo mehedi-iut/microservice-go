@@ -50,6 +50,7 @@ func (p *Products) ServeHTTP(rw http.ResponseWriter, r *http.Request){
 		}
 
 		p.l.Println("got id", id)
+		p.updateProducts(id, rw, r)
 
 	}
 
@@ -67,14 +68,22 @@ func (p *Products) getProducts(rw http.ResponseWriter, r *http.Request){
 }
 
 func (p *Products) addProducts(rw http.ResponseWriter, r *http.Request){
-	p.l.Println("Handle POST request")
+	prod := &data.Product{}
+	err := prod.FromJSON(r.Body)
+	if err != nil{
+		http.Error(rw, "Unable to add the product", http.StatusBadRequest)
+	}
+	p.l.Printf("Prod %#v", prod)
+	data.AddProduct(prod)
+}
+
+func(p *Products) updateProducts(id int, rw http.ResponseWriter, r *http.Request){
 	prod := &data.Product{}
 
 	err := prod.FromJSON(r.Body)
 	if err != nil {
-		http.Error(rw, "Unable to unmarshal json", http.StatusBadRequest)
+		http.Error(rw, "Unable to add the product", http.StatusBadRequest)
 	}
 
-	p.l.Printf("Prod: %#v", prod)
-	data.AddProduct(prod)
+	data.UpdateProduct(id, prod)
 }
