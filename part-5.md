@@ -185,5 +185,70 @@ Now we need to use **middleware** to process the data that is send to server. No
     In other words, middleware acts as an intermediary between the incoming request and the handler function that handles the request. It can perform operations on the request and/or response before or after the request is handled, and it can also choose to short-circuit the request handling and return a response immediately, or pass the request to the next middleware or the handler function.
     Middleware can be used to add common functionality to an application, such as adding headers to responses, handling CORS, validating requests, etc. In Go, middleware is often implemented as a function that takes in a http.Handler and returns a http.Handler.
 
+So using the **Middleware** we will validate the json before adding to our proudctlist
 
+```go
+type KeyProduct struct {}
 
+func(p Products) MiddlewareValidateProduct(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request){
+		prod := data.Product{}
+
+		err := prod.FromJSON(r.Body)
+		if err != nil {
+			p.l.Println("[ERROR] deserializing product", err)
+			http.Error(rw, "Error reading product", http.StatusBadRequest)
+			return
+		}
+
+		// add the product to the context
+		ctx := context.WithValue(r.Context, KeyProduct{}, prod)
+		r = r.WithContext(ctx)
+
+		// Call the next handler, which can be another middleware in the chain, or the final handler.
+		next.ServeHTTP(rw, r)
+	})
+}
+```
+
+here we convert data from JSON to productlist and then crete a context with the prodlist called **prod** and a type called **KeyProduct**, as context take a key argument which can be string or type struct. After declaring the context we create new request with context. we do all of this because next.ServeHTTP takes request with context
+
+Now we need to update our code of **AddProduct** and **UpdateProduct**
+
+```go
+func(p *Products) AddProduct(rw http.ResponseWriter, r *http.Request){
+	p.l.Println("Handle POST Product")
+
+	prod := r.Context().Value(keyProduct{}).(data.Product)
+	data.AddProduct(&prod)
+}
+```
+
+here, **r.Context().Value(keyProduct{})** will return interface and we cast into our type **data.Product**. After that we can add to our product list
+
+```go
+func (p Products) UpdateProducts(rw http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(rw, "Unable to convert id", http.StatusBadRequest)
+		return
+	}
+
+	p.l.Println("Handle PUT Product", id)
+	prod := r.Context().Value(KeyProduct{}).(data.Product)
+
+	err = data.UpdateProduct(id, &prod)
+	if err == data.ErrProductNotFound {
+		http.Error(rw, "Product not found", http.StatusNotFound)
+		return
+	}
+
+	if err != nil {
+		http.Error(rw, "Product not found", http.StatusInternalServerError)
+		return
+	}
+}
+```
+
+now, **vars := mux.Vars(r)** we will get variable which we passed in the put request, in our case **id** and we extract using that and then use **strconv** to convert to **int** and rest is similar as **AddProduct**.
