@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"microservice-go/data"
 	"net/http"
@@ -74,6 +75,17 @@ func (p *Products) MiddlewareValidateProduct(next http.Handler) http.Handler{
 			p.l.Println("[ERROR] deserializing product", err)
 			http.Error(rw, "Error reading product", http.StatusBadRequest)
 			return
+		}
+
+		// validate the product
+		err = prod.Validate()
+		if err != nil{
+			p.l.Println("[ERROR] vallidating proudct", err)
+			http.Error(
+				rw,
+				fmt.Sprintf("Error validating product: %s", err),
+				http.StatusBadRequest,
+			)
 		}
 
 		ctx := context.WithValue(r.Context(), KeyProduct{}, prod)
