@@ -237,8 +237,9 @@ func(p *Products) AddProduct(rw http.ResponseWriter, r *http.Request){
 	data.AddProduct(&prod)
 }
 ```
+We need to update the product, so to do that, we need product. but from where we get the product?. we get the product from request as we change the initial request to reqeust with context which has our product. we do that in middleware. but **r.Context().Value(keyProduct{})** will return interface and we cast that into our type **data.Product**. It is safe here to cast because middleware validate the data before coming to this handler. so appropiate date come here. 
 
-here, **r.Context().Value(keyProduct{})** will return interface and we cast into our type **data.Product**. After that we can add to our product list
+After that we can add to our product list
 
 ```go
 func (p Products) UpdateProducts(rw http.ResponseWriter, r *http.Request) {
