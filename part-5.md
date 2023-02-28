@@ -183,7 +183,9 @@ postRouter.HandleFunc("/", ph.AddProudct)
 Now we need to use **middleware** to process the data that is send to server. Now what is **Middleware**?
     A middleware is a piece of code that is executed before or after an HTTP request is handled by a route in a web application. It provides a way to modify the request and response, or to perform some processing, such as authentication, authorization, logging, or error handling.
     In other words, middleware acts as an intermediary between the incoming request and the handler function that handles the request. It can perform operations on the request and/or response before or after the request is handled, and it can also choose to short-circuit the request handling and return a response immediately, or pass the request to the next middleware or the handler function.
-    Middleware can be used to add common functionality to an application, such as adding headers to responses, handling CORS, validating requests, etc. In Go, middleware is often implemented as a function that takes in a http.Handler and returns a http.Handler.
+    Middleware can be used to add common functionality to an application, such as adding headers to responses, handling CORS, validating requests, etc. 
+	
+In Go, middleware is often implemented as a function that takes in a http.Handler and returns a http.Handler.
 
 So using the **Middleware** we will validate the json before adding to our proudctlist
 
@@ -211,7 +213,19 @@ func(p Products) MiddlewareValidateProduct(next http.Handler) http.Handler {
 }
 ```
 
-here we convert data from JSON to productlist and then crete a context with the prodlist called **prod** and a type called **KeyProduct**, as context take a key argument which can be string or type struct. After declaring the context we create new request with context. we do all of this because next.ServeHTTP takes request with context
+here we convert data from JSON to productlist and then crete a context with the prodlist called **prod** and a type called **KeyProduct**, as context take a **key** argument which can be **string** or type **struct**. After declaring the context we create new request with context. 
+
+*why we create request with context?*
+
+request has context. see [this](https://pkg.go.dev/net/http#Request.WithContext).
+So we first deserialize the data from JSON to **ProductList**. If we can't then we show error and stop there. but we successfully deserialize the json then we need to store that deserialize json i.e **ProductList** somewhere to process later on. and we can store that **ProductList** in request. because request has context. So, we can create new request with context which has our productlist. and we do that using below code
+```
+ctx := context.WithValue(r.Context, KeyProduct{}, prod)
+r = r.Withcontext(ctx)
+```
+so, here, we create new context with our data and then create new request with our context from old request
+
+ So  we do all of this because next.ServeHTTP takes request with context
 
 Now we need to update our code of **AddProduct** and **UpdateProduct**
 
