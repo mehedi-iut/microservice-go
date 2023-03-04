@@ -254,5 +254,27 @@ func (p Products) MiddlewareValidateProduct(next http.Handler) http.Handler {
 }
 ```
 
-Now we will use docs handler to have nice ui of swagger
+Now we will use docs handler to have nice ui of swagger. To create handler for it we will use **ReDoc**[link](https://github.com/Redocly/redoc)
+
+To import **ReDoc**, 
+```go
+import (
+	"github.com/go-openapi/runtime/middleware"
+)
+```
+
+And to create the handler in the path **/docs**, we will use already define **getRouter**
+```go
+opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
+sh := middleware.Redoc(opts, nil)
+
+getRouter.Handle("/docs", sh)
+```
+
+Now if we run our server and visit **localhost:9090/docs** we will get error, because **ReDoc** try to download the **swagger.yaml** from our server but it can't find it, this is because, we don't serve the **swagger.yaml** file from our server
+
+To serve **swagger.yaml** file, we need to add below code
+```go
+getRouter.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
+```
 
