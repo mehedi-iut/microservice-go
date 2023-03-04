@@ -134,3 +134,58 @@ func (p *Products) MiddlewareValidateProduct(next http.Handler) http.Handler{
 
 Now, if we run ```make swagger`` it will generate **swagger.yaml** in the root folder where **Makefile** is.
 
+if the swagger installation failed then you can follow this [linke](https://github.com/go-swagger/go-swagger/blob/master/docs/install.md#debian-packages-)
+
+### Code changed
+From previous episode the code has changed and inside the products handler, there are different go files to handle the different REST API method
+the below one is **get.go**
+```go
+package handlers
+
+import (
+	"net/http"
+	"product-api/data"
+)
+
+// getProducts returns the products from the data store
+func (p *Products) GetProducts(rw http.ResponseWriter, r *http.Request){
+	p.l.Println("Handle GET Products")
+
+	// fetch the products from the datastore
+	lp := data.GetProducts()
+
+	// serialize the list to JSON
+	err := lp.ToJSON(rw)
+	if err != nil {
+		http.Error(rw, "Unable to marshal json", http.StatusInternalServerError)
+	}
+}
+```
+
+Now we will add basic swagger documentation in our get function
+
+```go
+package handlers
+
+import (
+	"net/http"
+	"product-api/data"
+)
+
+// swagger:route GET /products products listProducts
+// Returns a list of products
+
+// getProducts returns the products from the data store
+func (p *Products) GetProducts(rw http.ResponseWriter, r *http.Request){
+	p.l.Println("Handle GET Products")
+
+	// fetch the products from the datastore
+	lp := data.GetProducts()
+
+	// serialize the list to JSON
+	err := lp.ToJSON(rw)
+	if err != nil {
+		http.Error(rw, "Unable to marshal json", http.StatusInternalServerError)
+	}
+}
+```
