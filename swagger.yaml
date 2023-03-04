@@ -10,10 +10,19 @@ paths:
         get:
             description: Returns a list of products
             operationId: listProducts
+            responses:
+                "200":
+                    $ref: '#/responses/productsResponse'
             tags:
                 - products
 produces:
     - application/json
+responses:
+    productsResponse:
+        description: A list of products returns in the response
+        schema:
+            items: {}
+            type: array
 schemes:
     - http
 swagger: "2.0"
