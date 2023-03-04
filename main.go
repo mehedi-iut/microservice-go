@@ -1,6 +1,6 @@
 // Package Classification of Product API
 //
-// Documentation for Product API
+// # Documentation for Product API
 //
 // Schemes: http
 // BasePath: /
@@ -15,14 +15,16 @@
 package main
 
 import (
+	"context"
 	"log"
+	"microservice-go/handlers"
 	"net/http"
 	"os"
 	"os/signal"
-	"microservice-go/handlers"
-	"github.com/gorilla/mux"
 	"time"
-	"context"
+
+	"github.com/go-openapi/runtime/middleware"
+	"github.com/gorilla/mux"
 )
 
 func main(){
@@ -42,6 +44,11 @@ func main(){
 	putRouter := sm.Methods(http.MethodPut).Subrouter()
 	putRouter.HandleFunc("/{id:[0-9]+}", ph.UpdateProducts)
 	putRouter.Use(ph.MiddlewareValidateProduct)
+
+	opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
+	dh := middleware.Redoc(opts, nil)
+	getRouter.Handle("/docs", dh)
+	getRouter.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
 	// create a new server
 	s := http.Server{
