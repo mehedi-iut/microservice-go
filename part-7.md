@@ -278,3 +278,90 @@ To serve **swagger.yaml** file, we need to add below code
 getRouter.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 ```
 
+we will add **delete** method in our API. so to do that, I will add **mux** router method in our **main.go**
+
+```go
+deleteRouter := sm.Methods(http.MethodDelete).Subrouter()
+deleteRouter.HandleFunc("/{id:[9-0]+}", ph.DeleteProduct)
+```
+
+we will create new **delete.go** in our **handlers**
+```go
+package handlers
+import (
+	"net/http"
+	"strconv"
+	"github.com/gorilla/mux"
+	"microservice-go/data"
+)
+
+// swagger:route DELETE /products/{id} products deleteProduct
+// Returns a list of products
+// responses:
+//  201: noContent
+
+// DeleteProduct deletes a product from the database
+func (p *Products) DeleteProduct (rw http.ResponseWriter, r *http.Request) {
+	// this will always convert because of the router
+	vars := mux.Vars(r)
+	id, _ := strconv. Atoi(vars ["id"])
+
+	p.l.Println("Handle DELETE Product", id)
+	err := data.DeleteProduct(id)
+
+	if err == data. ErrProductNotFound {
+		http.Error(rw, "Product not found", http.StatusNotFound)
+		return
+	}
+
+	if err != nil {
+		http.Error(rw, "Product not found", http.StatusInternalServerError)
+		return
+	}
+}
+```
+
+here we add also swagger documentation for our **DeleteProduct**. so it takes **id** parameter and in responses it has **noContent**. so we need to define those two parameters in **products.go**. so our swagger documentation is 
+```
+// swagger:route DELETE /products/{id} products deleteProduct
+// Returns a list of products
+// responses:
+//  201: noContent
+```
+
+In **products.go**, we need to define two struct for **id** parameter and **noContent** as we have used it in our swagger documentation.
+
+```go
+// swagger:response noContent
+type productsNoContent struct {
+}
+
+// swagger:parameters deleteProduct
+type productIDParameterWrapper struct {
+	// The id of the product to delete from the database
+	// in: path
+	// required: true
+	ID int `json:"id"`
+}
+```
+
+From the above code, we will find basic description in the swagger ui. but we can add rich description using swagger **model** tag.
+So we can add swagger:model in the **data** handler product struct.
+```go
+// Product defines the structure for an API product
+// swagger:model
+type Product struct {
+	// the id for this user
+	//
+	// required: true
+	// min:1
+	ID 			int 	`json:"id"`
+	Name 		string 	`json:"name" validate:"required"`
+	Description string 	`json:"description"`
+	Price 		float32	`json:"price" validate:"gt=0"`
+	SKU 		string 	`json:"sku" validate:"required,sku"`
+	CreatedOn   string 	`json:"-"`
+	UpdatedOn   string 	`json:"-"`
+	DeletedOn   string 	`json:"-"`
+}
+```
