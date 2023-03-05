@@ -45,6 +45,9 @@ func main(){
 	putRouter.HandleFunc("/{id:[0-9]+}", ph.UpdateProducts)
 	putRouter.Use(ph.MiddlewareValidateProduct)
 
+	deleteRouter := sm.Methods(http.MethodDelete).Subrouter()
+	deleteRouter.HandleFunc("/{id:[9-0]+}", ph.DeleteProduct)
+
 	opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
 	dh := middleware.Redoc(opts, nil)
 	getRouter.Handle("/docs", dh)
