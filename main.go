@@ -25,28 +25,32 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
+
+	"microservice-go/data"
 )
 
 func main(){
 	l := log.New(os.Stdout, "products-api", log.LstdFlags)
+	v := data.NewValidation()
 
-	ph := handlers.NewProducts(l)
+	ph := handlers.NewProducts(l, v)
 
 	sm := mux.NewRouter()
 
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
-	getRouter.HandleFunc("/", ph.GetProducts)
+	getRouter.HandleFunc("/products", ph.ListAll)
+	getRouter.HandleFunc("/products/{id:[0-9]+}", ph.ListSingle)
 
 	postRouter := sm.Methods(http.MethodPost).Subrouter()
-	postRouter.HandleFunc("/", ph.AddProduct)
+	postRouter.HandleFunc("/products", ph.Update)
 	postRouter.Use(ph.MiddlewareValidateProduct)
 
 	putRouter := sm.Methods(http.MethodPut).Subrouter()
-	putRouter.HandleFunc("/{id:[0-9]+}", ph.UpdateProducts)
+	putRouter.HandleFunc("/products", ph.Update)
 	putRouter.Use(ph.MiddlewareValidateProduct)
 
 	deleteRouter := sm.Methods(http.MethodDelete).Subrouter()
-	deleteRouter.HandleFunc("/{id:[9-0]+}", ph.DeleteProduct)
+	deleteRouter.HandleFunc("/products/{id:[9-0]+}", ph.Delete)
 
 	opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
 	dh := middleware.Redoc(opts, nil)
