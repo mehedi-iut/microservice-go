@@ -1,17 +1,19 @@
 # Micro-service in go
-## Part-6
+## Part-7
 ## API Documentation using Swagger
 
 In this documentation, we will explore API Documentation using swagger in go using **go-swagger**[link](https://goswagger.io/)
 
 To install **go-swagger** we will use **Makefile**. to use **Makefile** we need to install **make** in our system. This **Makefile** will also generate swagger yaml file
 ```make
+SWAGGER_PATH := "$(shell go env GOPATH)/bin/swagger"
 check_install:
-    which swagger || GO111MODULE=off go get -u github.com/go-swagger/go-swagger/cmd/swagger
-
+	which $(SWAGGER_PATH) || go install github.com/go-swagger/go-swagger/cmd/swagger@v0.30.4
 swagger: check_install
-    GO111MODULE=off swagger generate spec -o ./swagger.yaml --scan-models
+	$(SWAGGER_PATH) generate spec -o ./swagger.yaml --scan-models
 ```
+*if we install swagger using **apt** in linux, it will not pick up the struct definition while generating the spec*
+
 Then we need to run ```make swagger``` from the terminal
 
 Before runnting the above **Makefile** we need to add the swagger documentation in our code
@@ -174,6 +176,8 @@ import (
 
 // swagger:route GET /products products listProducts
 // Returns a list of products
+// Responses:
+//	200: productsResponse
 
 // getProducts returns the products from the data store
 func (p *Products) GetProducts(rw http.ResponseWriter, r *http.Request){
@@ -363,5 +367,42 @@ type Product struct {
 	CreatedOn   string 	`json:"-"`
 	UpdatedOn   string 	`json:"-"`
 	DeletedOn   string 	`json:"-"`
+}
+```
+
+The full swagger description is
+```go
+// Product defines the structure for an API product
+// swagger:model
+type Product struct {
+	// the id for the product
+	//
+	// required: false
+	// min: 1
+	ID int `json:"id"` // Unique identifier for the product
+
+	// the name for this poduct
+	//
+	// required: true
+	// max length: 255
+	Name string `json:"name" validate:"required"`
+
+	// the description for this poduct
+	//
+	// required: false
+	// max length: 10000
+	Description string `json:"description"`
+
+	// the price for the product
+	//
+	// required: true
+	// min: 0.01
+	Price float32 `json:"price" validate:"required,gt=0"`
+
+	// the SKU for the product
+	//
+	// required: true
+	// pattern: [a-z]+-[a-z]+-[a-z]+
+	SKU string `json:"sku" validate:"sku"`
 }
 ```
