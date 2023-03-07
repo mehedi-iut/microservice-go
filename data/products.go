@@ -1,11 +1,11 @@
 package data
 
-import (
-	"fmt"
-)
+import "fmt"
 
 // ErrProductNotFound is an error raised when a product can not be found in the database
 var ErrProductNotFound = fmt.Errorf("Product not found")
+
+
 
 // Product defines the structure for an API product
 // swagger:model
@@ -40,6 +40,7 @@ type Product struct {
 	// pattern: [a-z]+-[a-z]+-[a-z]+
 	SKU string `json:"sku" validate:"sku"`
 }
+
 
 // Products defines a slice of Product
 type Products []*Product

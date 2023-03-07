@@ -2,14 +2,12 @@ package handlers
 
 import (
 	"net/http"
-
 	"microservice-go/data"
 )
 
 // swagger:route DELETE /products/{id} products deleteProduct
-// Update a products details
-//
-// responses:
+// Update a list of products
+// Responses:
 //	201: noContentResponse
 //  404: errorResponse
 //  501: errorResponse

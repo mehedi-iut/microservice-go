@@ -1,4 +1,5 @@
+SWAGGER_PATH := "$(shell go env GOPATH)/bin/swagger"
 check_install:
-	which swagger || GO111MODULE=off go get -u github.com/go-swagger/go-swagger/cmd/swagger
+	which $(SWAGGER_PATH) || go install github.com/go-swagger/go-swagger/cmd/swagger@v0.30.4
 swagger: check_install
-	swagger generate spec -o ./swagger.yaml --scan-models
+	$(SWAGGER_PATH) generate spec -o ./swagger.yaml --scan-models

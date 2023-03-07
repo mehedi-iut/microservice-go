@@ -37,10 +37,10 @@ type errorValidationWrapper struct {
 	Body ValidationError
 }
 
-// A list of products
+// List of all products
 // swagger:response productsResponse
 type productsResponseWrapper struct {
-	// All current products
+	// All products in the system
 	// in: body
 	Body []data.Product
 }
@@ -53,7 +53,6 @@ type productResponseWrapper struct {
 	Body data.Product
 }
 
-// No content is returned by this API endpoint
 // swagger:response noContentResponse
 type noContentResponseWrapper struct {
 }
@@ -67,9 +66,9 @@ type productParamsWrapper struct {
 	Body data.Product
 }
 
-// swagger:parameters updateProduct
-type productIDParamsWrapper struct {
-	// The id of the product for which the operation relates
+// swagger:parameters deleteProduct
+type productIDParameterWrapper struct {
+	// The id of the product to delete from the database
 	// in: path
 	// required: true
 	ID int `json:"id"`
