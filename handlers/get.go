@@ -13,6 +13,7 @@ import (
 // ListAll handles GET requests and returns all current products
 func (p *Products) ListAll(rw http.ResponseWriter, r *http.Request) {
 	p.l.Println("[DEBUG] get all records")
+	rw.Header().Add("Content-Type", "application/json")
 
 	prods := data.GetProducts()
 
