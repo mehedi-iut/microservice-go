@@ -25,3 +25,6 @@ s := http.Server{
     IdleTimeout: 120 * time.Second,
 }
 ```
+
+if we run the frontend code by navigating to frontend folder and run ```yarn start``` we will get an error due to nodejs upgrade and some package depricated. To solve the issue you can follow this [link](https://gankrin.org/how-to-fix-error-digital-envelope-routinesunsupported-in-node-js-or-react/)
+
