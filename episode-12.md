@@ -81,7 +81,7 @@ func (g *GzipHandler) GzipMiddleware(next http.Handler) http.Handler {
 	})
 }
 ```
-Now we have **http.ResponseWriter** which is a *interface** which has different method [link](https://pkg.go.dev/net/http#ResponseWriter)
+Now we have **http.ResponseWriter** which is a *interface* which has different method [link](https://pkg.go.dev/net/http#ResponseWriter)
 
 so basically anything we do, we can as long as we're kind of implementing this response writer
 interface, we can create our own response writers.
@@ -138,7 +138,7 @@ func (wr *WrappedResponseWriter) Write(d []byte) (int, error) {
 	return wr.gw.Write(d)
 }
 ```
-he signature for that is you're gonna write a byte of information sorry a slice of bytes you're going to 
+The signature for that is you're gonna write a slice of bytes you're going to 
 return the length of the the data that you've written and an error if everything went wrong. 
 when we do our *Write*, we gonna just do our *wr.rw.Write()* 
 so we are using the gzipped writer because if you remember the gzipped writer wraps the response writer 
@@ -150,7 +150,7 @@ func (wr *WrappedResponseWriter) WriteHeader (statuscode int) {
 	wr.rw.WriteHeader(statuscode)
 }
 ```
-so, same as other method, using http.ResponseWriter *WriteHeader* method, we wrapped with out custom responsewriter *wr*
+so, same as other method, using http.ResponseWriter *WriteHeader* method, we wrapped with our custom responsewriter *wr*
 
 ```go
 func (wr *WrappedResponseWriter) Flush(){
