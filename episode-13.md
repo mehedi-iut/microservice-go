@@ -13,3 +13,25 @@ so with **protobufs** because they're binary based there are obviously quicker a
 
 now in a proto file you define **services** and you define **methods** for **services** and you define **messages** for **methods**
 
+```
+syntax = "proto3";
+
+service Currency {
+    rpc GetRate(RateRequest) returns (RateResponse);
+}
+
+message RateRequest {
+    string Base = 1;
+    string Destination = 2;
+}
+
+message RateResponse {
+    float Rate = 1;
+}
+```
+
+Now, protobufs has its own type, so that it can be language agnostic.[link](https://protobuf.dev/programming-guides/proto3/#scalar)
+
+From the protobufs we need to generate code for specific language example go, to do that we need to use **protoC** to generate golang code from protobufs.
+
+we also need **grpc** module 
