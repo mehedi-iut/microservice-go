@@ -33,9 +33,14 @@ message RateResponse {
 
 Now, protobufs has its own type, so that it can be language agnostic.[link](https://protobuf.dev/programming-guides/proto3/#scalar)
 
-From the protobufs we need to generate code for specific language For example go, to do that we need to use **protoC** to generate golang code from protobufs.
+From the protobufs we need to generate code for specific language For example go, to do that we need to use **protoC** to generate golang code from protobufs. [protoc installation](https://grpc.io/docs/protoc-installation/)
 
-we also need **grpc** module.
+we also need **grpc** module and plugins.
+```bash
+go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
+```
+
 
 To generate go code, create a **Makefile** and add the below code
 ```bash
@@ -86,10 +91,11 @@ import (
 
 type Currency struct {
     log hclog.Logger
+    protos.UnimplementedCurrencyServer
 }
 
 func NewCurrency(l hclog.Logger) *Currency {
-    return &Currency{l}
+    return &Currency{log: l}
 }
 
 func (c *Currency) GetRate(ctx context.Context, rr *protos.RateRequest) (*protos.RateResponse, error){
@@ -120,7 +126,8 @@ grpcurl --plaintext localhost:9092 list
 we will get error ```Failed to list services: server does not support the reflection API```
 
 To resolve this issue, we need to use gRPC module reflection method
-```reflection.Register(gs)
+```
+reflection.Register(gs)
 ```
 
 but reflection shouldn't be use in production env
@@ -146,7 +153,8 @@ message RateRequest {
     string Destination = 2 [json_name = "destination"];
 }
 ```
-Now, we can send data in json format with the field name as json_name above. if we want to call *Currency.GetRate* method for data payloadd, we need call *Currency.GetRate*
+Now, we can send data in json format with the field name as json_name above.
+if you can't find the ```[json_name = "base"]``` then we need to find that in generated code in **RateRequest** part and find json name. if we want to call *Currency.GetRate* method for data payloadd, we need call *Currency.GetRate*
 ```grpcurl --plaintext -d '{"base": "GBP", "destination": "USD"}' localhost:9092 Currency.GetRate```
 
 
