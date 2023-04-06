@@ -154,7 +154,22 @@ message RateRequest {
 }
 ```
 Now, we can send data in json format with the field name as json_name above.
-if you can't find the ```[json_name = "base"]``` then we need to find that in generated code in **RateRequest** part and find json name. if we want to call *Currency.GetRate* method for data payloadd, we need call *Currency.GetRate*
+
+if you can't find the ```[json_name = "base"]``` then we need to find that in generated code file **currency.pb.go** in **RateRequest** part and find json name.
+```go
+type RateRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Base        string `protobuf:"bytes,1,opt,name=Base,proto3" json:"Base,omitempty"`
+	Destination string `protobuf:"bytes,2,opt,name=Destination,proto3" json:"Destination,omitempty"`
+}
+```
+here Json name is *Base* and *Destination* not base and destination. so in the gprcurl command below, we need to use ```-d '{"Base": "GBP", "Destination": "USD"}'```
+
+
+if we want to call *Currency.GetRate* method for data payloadd, we need call *Currency.GetRate*
 ```grpcurl --plaintext -d '{"base": "GBP", "destination": "USD"}' localhost:9092 Currency.GetRate```
 
 
