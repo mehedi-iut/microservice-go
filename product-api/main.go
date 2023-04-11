@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	protos "currency/currency"
+	protos "micro-service-in-go/microservice-go/currency/currency"
 	"github.com/go-openapi/runtime/middleware"
 	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
