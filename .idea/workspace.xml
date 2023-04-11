@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="016e6da7-f12d-4189-bfe0-bb0aefbed3ea" name="Changes" comment="added zip middleware">
-      <change afterPath="$PROJECT_DIR$/episode-12.md" afterDir="false" />
-    </list>
+    <list default="true" id="016e6da7-f12d-4189-bfe0-bb0aefbed3ea" name="Changes" comment="added zip middleware" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -45,6 +43,7 @@
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
     "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "main",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
     "last_opened_file_path": "/home/mehedi/Desktop/go/microservice-go",
