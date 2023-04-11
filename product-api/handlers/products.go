@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
+	protos "currency/currency"
 	"github.com/gorilla/mux"
-	protos "microservice-go/currency/currency"
 	"product-api/data"
 )
 
