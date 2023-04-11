@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+option go_package="/currency";
+
 service Currency {
   // GetRate returns the exchange rate for the two provided currency codes
   rpc GetRate(RateRequest) returns (RateResponse);
@@ -8,9 +10,9 @@ service Currency {
 // RateRequest defines the request for a GetRate call
 message RateRequest {
   // Base is the base currency code for the rate
-  string Base = 1;
+  Currencies Base = 1;
   // Destination is the destination currency code for the rate
-  string Destination = 2;
+  Currencies Destination = 2;
 }
 
 // RateResponse is the response from a GetRate call, it contains
