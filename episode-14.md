@@ -143,7 +143,7 @@ Now, we want to call our gRPC service from our product-api. to do that, we need 
 First we need to import the generated code in the product-api
 ```go
 import (
-    protos "microservice-go/currency/currency"
+    protos "currency/currency"
 )
 
 ```
@@ -178,7 +178,7 @@ Now in the **NewProducts** function we need to add the gRPC argument
 
 ```go
 import (
-    protos "microservice-go/currency/currency"
+    protos "currency/currency"
 )
 
 type Products struct {
@@ -228,7 +228,22 @@ because *grpc.Dial* will use http/2 with https, we need to specify **opts** in t
 conn, err := grpc.Dial("localhost:9092", grpc.WithInsecure())
 ```
 
-now, if we run main.go and run ```curl localhost:9090/products/1```
+Now to import the **currency** module from **product-api** module, we need to add 
+```replace currency => ../currency``` in the **product-api** *go.mod* file
+
+```go
+module product-api
+
+go 1.20
+
+replace currency => ../currency
+```
+
+and run the ```go mod tidy``` in the product-api folder to resolve the dependency
+
+now we need to run currency and product-api **main.go**
+
+and run ```curl localhost:9090/products/1```
 
 we will get converted value.
 here we are running product-api main.go and curl the rest endpoint. but internally it will call our gRPC client and convert the rate.
