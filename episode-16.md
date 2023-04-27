@@ -288,7 +288,7 @@ func (p *ProductsDB) GetProductByID(id int, currency string) (*Product, error){
     np := *productList[i]
     np.Price = np.Price*rate
 
-    return np, nil
+    return &np, nil
 }
 ```
 
@@ -311,14 +311,14 @@ func UpdateProduct(p Product) error {
 
 now we will change it to the method by just adding ```(p *ProductsDB)```
 ```go
-func (p *ProductsDB) UpdateProduct(p Product) error {
+func (p *ProductsDB) UpdateProduct(pr Product) error {
 	i := findIndexByProductID(p.ID)
 	if i == -1 {
 		return ErrProductNotFound
 	}
 
 	// update the product in the DB
-	productList[i] = &p
+	productList[i] = &pr
 
 	return nil
 }
