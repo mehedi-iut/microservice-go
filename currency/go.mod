@@ -2,6 +2,8 @@ module currency
 
 go 1.20
 
+replace currency => ../currency
+
 require (
 	github.com/hashicorp/go-hclog v1.5.0
 	google.golang.org/grpc v1.54.0

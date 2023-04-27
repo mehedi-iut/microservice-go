@@ -4,6 +4,7 @@ import (
 	"context"
 	protos "currency/currency"
 	"fmt"
+	"github.com/hashicorp/go-hclog"
 )
 
 // ErrProductNotFound is an error raised when a product can not be found in the database
@@ -51,8 +52,8 @@ type ProductsDB struct {
 	log      hclog.Logger
 }
 
-func NewProductDB(c protos.CurrencyClient, l hclog.Logger) *ProductDB {
-	return &ProductDB{c, l}
+func NewProductDB(c protos.CurrencyClient, l hclog.Logger) *ProductsDB {
+	return &ProductsDB{c, l}
 }
 
 // GetProducts returns all products from the database
@@ -116,7 +117,7 @@ func (p *ProductsDB) GetProductByID(id int, currency string) (*Product, error) {
 // If a product with the given id does not exist in the database
 // this function returns a ProductNotFound error
 func (p *ProductsDB) UpdateProduct(pr Product) error {
-	i := findIndexByProductID(p.ID)
+	i := findIndexByProductID(pr.ID)
 	if i == -1 {
 		return ErrProductNotFound
 	}
@@ -128,15 +129,15 @@ func (p *ProductsDB) UpdateProduct(pr Product) error {
 }
 
 // AddProduct adds a new product to the database
-func AddProduct(p Product) {
+func (p *ProductsDB) AddProduct(pr Product) {
 	// get the next id in sequence
 	maxID := productList[len(productList)-1].ID
-	p.ID = maxID + 1
-	productList = append(productList, &p)
+	pr.ID = maxID + 1
+	productList = append(productList, &pr)
 }
 
 // DeleteProduct deletes a product from the database
-func DeleteProduct(id int) error {
+func (p *ProductsDB) DeleteProduct(id int) error {
 	i := findIndexByProductID(id)
 	if i == -1 {
 		return ErrProductNotFound
