@@ -401,7 +401,7 @@ func (p *ProductsDB) getRate(destination string) (float64, error){
 }
 ```
 
-now whenever we call this get handler in products-api **get.go**,  we're gonna go and call **GetProducts** which will call to **getRate** which is going to get the currency rate, if needed it's gonna mutate it to get the correct conversion rate. it will going to try and use the cash if it has a cached item and it's gonna subscribe for updates if it doesn't. when we create a new instance of on your type ProductsDB,  we're also creating a bi-directional stream to the currency server which is awaiting updates that we're subscribing to
+now whenever we call this get handler in products-api **get.go**,  we're gonna go and call **GetProducts** which is going to get the currency rate, if needed it's gonna mutate it to get the correct conversion rate. then we call **getRate** which is going to try and use the cash if it has a cached item and it's gonna subscribe for updates if it doesn't. Also when we create a new instance of ```type ProductsDB```,  we're also creating a bi-directional stream to the currency server which is awaiting updates that we're subscribing to
 
 Now we can run our currency service and products-api service by running ```go run main.go``` and then call our products api with currency USD
 ```bash
