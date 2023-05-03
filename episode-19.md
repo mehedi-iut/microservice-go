@@ -315,7 +315,7 @@ func (c *Currency) SubscribeRates(src protos.Currency_SubscribeRatesServer) erro
 it's pretty much just the reverse we're implementing it on the client side because it's bi-directional so in both sides we have sanding on both sides we have receiving
 
 now ```sub.Recv()``` return rates and error and we need to add it in the loop to get continuous message and ```sub.Recv()``` will block the execution. once we get the updated rate, we will update it in out cache(map)
-so our updated code is
+so our updated code in **data/products.go** added after **func NewProductDB**
 ```go
 func(p *ProductsDB) handleUpdates(){
     sub, err := p.currency.SubscribeRates(context.Background())
