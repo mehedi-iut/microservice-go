@@ -157,6 +157,7 @@ so now just quick recap of what we've just done so subscribe rates allows the cl
 
 #### MonitorRates method
 this is to simulate the changes of currency and send updated changes to the listener. This is only for demonstration purpose, not a real world case
+in our currency service in **data/rates.go** add the below method under *GetRate*
 
 ```go
 // MonitorRates checks the rates in the ECB API every interval and sends a message to the
