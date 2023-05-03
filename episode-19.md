@@ -272,7 +272,7 @@ This line returns the ```ret``` channel to the caller.
 #### changes in product-api
 In the product-api, **get.go**, we need to modify the code, so that it will listen to rate changes and before returning any value, it should check the cache first
 
-we need to go to **products.go** and **getRate** method which is called from **ListSingle** and **ListAll** from **get.go**
+we need to go to product-api service  **data/products.go** and **getRate** method which is called from **ListSingle** and **ListAll** from **handlers/get.go**
 
 we need to tidy this up a little bit because what we're actually doing is we're making that rate request every single time but we've now got subscriber method and we know that we can kind of keep track of things we can cache the data so again in the same way as we we had that set up before we can cache our rates. so let's just create a very simple simple cache here on our ```ProductsDB``` struct.
 ```go
