@@ -12,6 +12,7 @@ type Currency struct {
     rates *data.ExchangeRates
     log hclog.Logger
     subscriptions map[protos.Currency_SubscribeRatesServer][]*protos.RateRequest
+    protos.UnimplementedCurrencyServer // Embed the UnimplementedServiceServer struct
 }
 
 func NewCurrency(r *data.ExchangeRates, l hclog.Logger) *Currency {
@@ -25,7 +26,7 @@ func NewCurrency(r *data.ExchangeRates, l hclog.Logger) *Currency {
 }
 ```
 
-Here, we need to break up subscription because at the moment we are not listening for any particular messages so we want to keep track of the different clients and what they're interested in. so we need to track that subscription and we can just implement a simple Map and use that as a cache. that's why we added ```subscriptions``` in the ```Currency``` *struct*.
+Here, we need to break up subscription because at the moment we are not listening for any particular messages so we want to keep track of the different clients and what they're interested in. so we need to track that subscription and we can just implement a simple Map and use that as a cache. that's why we added ```subscriptions``` in the ```Currency``` *struct*. we must added ```protos.UnimplementedCurrencyServer``` in the struct otherwise we will get *(missing method mustEmbedUnimplementedCurrencyServer)*
 
 Now in the ```NewCurrency```, we are returning that map ```make(map[protos.Currency_SubscribeRatesServer][]*protos.RateRequest)``` and we added ```go func()``` so that it shouldn't block the execution. and ```ru := r.MonitorRates(5 * time.Second)``` we will implement```MonitorRates``` later in this blog in **data** module
 
