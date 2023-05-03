@@ -386,7 +386,7 @@ func(p *ProductsDB) handleUpdates(){
 }
 ```
 
-Finally, we can now send messages and subscribe for getting update in **getRate** method
+Finally, we can now send messages and subscribe for getting update in **getRate** method in **data/products.go**
 
 ```go
 func (p *ProductsDB) getRate(destination string) (float64, error){
