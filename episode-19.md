@@ -352,6 +352,16 @@ type ProductsDB struct {
     client protos.Currency_SubscribeRatesClient
 }
 ```
+
+as we added **client** in the ```type ProductsDB struct```, we need to added that in ```func NewProductsDB```, we just add *nil* for client
+```go
+func NewProductsDB(c protos.CurrencyClient, l hclog.Logger) *ProductsDB{
+    pb := &ProductsDB{c, l, make(map[string]float64), nil}
+    go pb.handleUpdates()
+    return pb
+}
+```
+
 and in **handleUpdates** we need to add this line ```p.Client = sub``` to have the reference
 
 ```go
