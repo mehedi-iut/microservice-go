@@ -114,7 +114,7 @@ func (c *Currency) handleUpdates() {
                     c.log.Error("Unable to get update rate", "base", rr.GetBase().String(), "destination", rr.GetDestination().String())
                 }
 
-                err = k.Send(&protos.RateRequest{Base: rr.Base, Destination: rr.Destination, Rate: r})
+                err = k.Send(&protos.RateResponse{Base: rr.Base, Destination: rr.Destination, Rate: r})
                 if err != nil{
                     c.log.Error("Unable to send updated rate", "base", rr.GetBase().String(), "destination", rr.GetDestination().String())
                 }
