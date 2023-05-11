@@ -3,18 +3,18 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"practice/data"
+	"github.com/hashicorp/go-hclog"
 )
 
 type Products struct {
-	l  *log.Logger
+	l  hclog.Logger
 	p  *data.ProductModel
 	pl *data.ProductInfo
 }
 
-func NewProducts(l *log.Logger, p *data.ProductModel, pl *data.ProductInfo) *Products {
+func NewProducts(l hclog.Logger, p *data.ProductModel, pl *data.ProductInfo) *Products {
 	return &Products{l, p, pl}
 }
 
@@ -58,7 +58,7 @@ func (p *Products) addProducts(rw http.ResponseWriter, r *http.Request) {
 	fmt.Println(prod)
 	_, err = p.p.Insert(prod)
 	if err != nil {
-		fmt.Println(err)
+		p.l.Error("Unable to insert the data", "error", err)
 		http.Error(rw, "Unable to add data to the database", http.StatusInternalServerError)
 		return
 	}

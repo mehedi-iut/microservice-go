@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -10,15 +11,31 @@ import (
 	"practice/data"
 	"practice/handlers"
 	"time"
+
+	"github.com/hashicorp/go-hclog"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	l := log.New(os.Stdout, "product-api", log.LstdFlags)
+	// l := log.New(os.Stdout, "product-api", log.LstdFlags)
+	l := hclog.Default()
 
-	connectionString := "server=bs054.database.windows.net;user id=mehedi;password=database@123;port=1433;database=test"
+	err := godotenv.Load(".env")
+	if err != nil{
+		l.Error("Error getting env variable", "error", err)
+	}
+
+	var server = os.Getenv("server")
+	var port = os.Getenv("port")
+	var user = os.Getenv("user")
+	var password = os.Getenv("password")
+	var database = os.Getenv("database")
+
+	connectionString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;",
+		server, user, password, port, database)
 	db, err := sql.Open("sqlserver", connectionString)
 	if err != nil {
-		log.Fatal(err)
+		l.Error("Error loading Env variable", "error", err)
 	}
 	defer db.Close()
 
@@ -41,7 +58,7 @@ func main() {
 	go func() {
 		err := s.ListenAndServe()
 		if err != nil {
-			l.Fatal(err)
+			l.Error("Error Starting Server", "error", err)
 		}
 
 	}()
@@ -51,13 +68,13 @@ func main() {
 	signal.Notify(sigChan, os.Kill)
 
 	sig := <-sigChan
-	l.Println("Received terminate, graceful shutdown", sig)
+	log.Println("Received terminate, graceful shutdown", sig)
 
 	tc, _ := context.WithTimeout(context.Background(), 30*time.Second)
 	err = s.Shutdown(tc)
 
 	if err != nil {
-		l.Fatalf("HTTP server shutdown, %v", err)
+		l.Error("HTTP server shutdown", "error", err)
 	}
 
 }
