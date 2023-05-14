@@ -3,6 +3,7 @@ package data
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"github.com/google/uuid"
 	"io"
 	"log"
@@ -29,6 +30,11 @@ type ProductModel struct {
 func (p *ProductInfo) FromJSON(r io.Reader) error {
 	e := json.NewDecoder(r)
 	return e.Decode(p)
+}
+
+func (p *ProductInfo) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(p)
 }
 
 // this will insert a new snippet into database
@@ -65,6 +71,17 @@ func (m *ProductModel) Insert(p *ProductInfo) (uuid.UUID, error) {
 	// The ID returned has the type int64, so we convert it to an int type
 	// before returning.
 	return p.ID, nil
+}
+
+// UpdateProductByName updates the product in the database based on the name
+func (m *ProductModel) UpdateProductByName(name string, prod *ProductInfo) error {
+	stmt := "UPDATE product SET Name = @Name, Description = @Description, Price = @Price, SKU = @SKU WHERE Name = @Name"
+	_, err := m.DB.Exec(stmt, sql.Named("Name", name), sql.Named("Description", prod.Description), sql.Named("Price", prod.Price), sql.Named("SKU", prod.SKU))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // this will return the 10 most recently created products
@@ -121,3 +138,5 @@ func (m *ProductModel) Latest() ([]*ProductInfo, error) {
 
 	return products, nil
 }
+
+var ErrProductNotFound = fmt.Errorf("product not found")

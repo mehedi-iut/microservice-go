@@ -10,8 +10,10 @@ import (
 	"os/signal"
 	"practice/data"
 	"practice/handlers"
+	"strconv"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/hashicorp/go-hclog"
 	"github.com/joho/godotenv"
 )
@@ -21,16 +23,20 @@ func main() {
 	l := hclog.Default()
 
 	err := godotenv.Load(".env")
-	if err != nil{
+	if err != nil {
 		l.Error("Error getting env variable", "error", err)
 	}
 
 	var server = os.Getenv("server")
-	var port = os.Getenv("port")
+	var strPort = os.Getenv("port")
 	var user = os.Getenv("user")
 	var password = os.Getenv("password")
 	var database = os.Getenv("database")
 
+	port, err := strconv.Atoi(strPort)
+	if err != nil {
+		l.Error("Can't convert the port into integer", "Error", err)
+	}
 	connectionString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;",
 		server, user, password, port, database)
 	db, err := sql.Open("sqlserver", connectionString)
@@ -44,8 +50,21 @@ func main() {
 
 	ph := handlers.NewProducts(l, p, pl)
 
-	sm := http.NewServeMux()
-	sm.Handle("/", ph)
+	//sm := http.NewServeMux()
+	//sm.Handle("/", ph)
+
+	sm := mux.NewRouter()
+
+	getRouter := sm.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/", ph.GetProducts)
+
+	postRouter := sm.Methods(http.MethodPost).Subrouter()
+	postRouter.HandleFunc("/", ph.AddProducts)
+	postRouter.Use(ph.MiddlewareValidateProduct)
+
+	putRouter := sm.Methods(http.MethodPut).Subrouter()
+	putRouter.HandleFunc("/{name}", ph.UpdateProducts)
+	putRouter.Use(ph.MiddlewareValidateProduct)
 
 	s := &http.Server{
 		Addr:         ":9090",
@@ -56,6 +75,7 @@ func main() {
 	}
 
 	go func() {
+		l.Info("Starting server on port 9090")
 		err := s.ListenAndServe()
 		if err != nil {
 			l.Error("Error Starting Server", "error", err)
