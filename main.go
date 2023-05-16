@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"github.com/hashicorp/go-hclog"
 	"github.com/joho/godotenv"
 )
@@ -53,18 +53,37 @@ func main() {
 	//sm := http.NewServeMux()
 	//sm.Handle("/", ph)
 
-	sm := mux.NewRouter()
+	////////////////////////////// Gorilla Mux //////////////////
+	//sm := mux.NewRouter()
+	//
+	//getRouter := sm.Methods(http.MethodGet).Subrouter()
+	//getRouter.HandleFunc("/", ph.GetProducts)
+	//
+	//postRouter := sm.Methods(http.MethodPost).Subrouter()
+	//postRouter.HandleFunc("/", ph.AddProducts)
+	//postRouter.Use(ph.MiddlewareValidateProduct)
+	//
+	//putRouter := sm.Methods(http.MethodPut).Subrouter()
+	//putRouter.HandleFunc("/{name}", ph.UpdateProducts)
+	//putRouter.Use(ph.MiddlewareValidateProduct)
 
-	getRouter := sm.Methods(http.MethodGet).Subrouter()
-	getRouter.HandleFunc("/", ph.GetProducts)
+	////////////////////////////////////////////////////////////
 
-	postRouter := sm.Methods(http.MethodPost).Subrouter()
-	postRouter.HandleFunc("/", ph.AddProducts)
-	postRouter.Use(ph.MiddlewareValidateProduct)
+	sm := chi.NewRouter()
+	sm.Get("/", ph.GetProducts)
 
-	putRouter := sm.Methods(http.MethodPut).Subrouter()
-	putRouter.HandleFunc("/{name}", ph.UpdateProducts)
-	putRouter.Use(ph.MiddlewareValidateProduct)
+	sm.Group(func(r chi.Router) {
+		r.Use(ph.MiddlewareValidateProduct)
+		r.Post("/", ph.AddProducts)
+	})
+
+	//sm.Use(ph.MiddlewareValidateProduct)
+	//sm.Put("/{name}", ph.UpdateProducts)
+
+	sm.Group(func(r chi.Router) {
+		r.Use(ph.MiddlewareValidateProduct)
+		r.Put("/{name}", ph.UpdateProducts)
+	})
 
 	s := &http.Server{
 		Addr:         ":9090",

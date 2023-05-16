@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"github.com/hashicorp/go-hclog"
 	"net/http"
 	"practice/data"
@@ -78,13 +78,15 @@ func (p *Products) AddProducts(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Products) UpdateProducts(rw http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	name := vars["name"]
+	//vars := mux.Vars(r)
+	//name := vars["name"]
 	//id, err := strconv.Atoi(vars["id"])
 	//if err != nil {
 	//	http.Error(rw, "Unable to convert id", http.StatusBadRequest)
 	//	return
 	//}
+
+	name := chi.URLParam(r, "name")
 
 	p.l.Info("Handle PUT Product", name)
 	prod := r.Context().Value(KeyProduct{}).(*data.ProductInfo)

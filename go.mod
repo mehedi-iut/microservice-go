@@ -12,6 +12,7 @@ require (
 
 require (
 	github.com/fatih/color v1.13.0 // indirect
+	github.com/go-chi/chi/v5 v5.0.8 // indirect
 	github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe // indirect
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
