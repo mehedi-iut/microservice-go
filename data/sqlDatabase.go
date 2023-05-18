@@ -2,10 +2,8 @@ package data
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
-	"io"
 	"log"
 	"time"
 )
@@ -13,10 +11,10 @@ import (
 // Product defines the structure for an API product
 type ProductInfo struct {
 	ID          uuid.UUID `json:"id"`
-	Name        string    `json:"name"`
+	Name        string    `json:"name" validate:"required"`
 	Description string    `json:"description"`
-	Price       float32   `json:"price"`
-	SKU         string    `json:"sku"`
+	Price       float32   `json:"price" validate:"gt=0"`
+	SKU         string    `json:"sku" validate:"required,sku"`
 	CreatedOn   time.Time `json:"-"`
 	UpdatedOn   time.Time `json:"-"`
 	DeletedOn   time.Time `json:"-"`
@@ -25,16 +23,6 @@ type ProductInfo struct {
 // Define a ProductModel type which wraps a sql.DB connection pool
 type ProductModel struct {
 	DB *sql.DB
-}
-
-func (p *ProductInfo) FromJSON(r io.Reader) error {
-	e := json.NewDecoder(r)
-	return e.Decode(p)
-}
-
-func (p *ProductInfo) ToJSON(w io.Writer) error {
-	e := json.NewEncoder(w)
-	return e.Encode(p)
 }
 
 // this will insert a new snippet into database
@@ -73,10 +61,40 @@ func (m *ProductModel) Insert(p *ProductInfo) (uuid.UUID, error) {
 	return p.ID, nil
 }
 
+func (m *ProductModel) GetProductByName(name string) (*ProductInfo, error) {
+	product := &ProductInfo{}
+	stmt := "SELECT ID, Name, Description, Price, SKU FROM product WHERE Name like @Name"
+	err := m.DB.QueryRow(stmt, sql.Named("Name", name)).Scan(
+		&product.ID,
+		&product.Name,
+		&product.Description,
+		&product.Price,
+		&product.SKU,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Println("No rows found")
+		}
+		return nil, err
+	}
+
+	return product, nil
+}
+
 // UpdateProductByName updates the product in the database based on the name
 func (m *ProductModel) UpdateProductByName(name string, prod *ProductInfo) error {
 	stmt := "UPDATE product SET Name = @Name, Description = @Description, Price = @Price, SKU = @SKU WHERE Name = @Name"
 	_, err := m.DB.Exec(stmt, sql.Named("Name", name), sql.Named("Description", prod.Description), sql.Named("Price", prod.Price), sql.Named("SKU", prod.SKU))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ProductModel) DeleteProductByName(name string) error {
+	stmt := "DELETE FROM product WHERE Name = @Name"
+	_, err := m.DB.Exec(stmt, sql.Named("Name", name))
 	if err != nil {
 		return err
 	}

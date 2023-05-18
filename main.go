@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/go-openapi/runtime/middleware"
 	"log"
 	"net/http"
 	"os"
@@ -47,8 +48,9 @@ func main() {
 
 	p := &data.ProductModel{DB: db}
 	pl := &data.ProductInfo{}
+	v := data.NewValidation()
 
-	ph := handlers.NewProducts(l, p, pl)
+	ph := handlers.NewProducts(l, p, pl, v)
 
 	//sm := http.NewServeMux()
 	//sm.Handle("/", ph)
@@ -70,7 +72,16 @@ func main() {
 	////////////////////////////////////////////////////////////
 
 	sm := chi.NewRouter()
-	sm.Get("/", ph.GetProducts)
+
+	// Define a regular expression pattern to match names starting with a capital or lowercase letter
+	namePattern := `^[A-Za-z]\w*$`
+
+	//sm.Get("/", ph.GetProducts)
+	sm.Group(func(r chi.Router) {
+		//r.Use(ph.MiddlewareValidateProduct)
+		r.Get("/products", ph.ListAll)
+		r.Get("/products/{name:"+namePattern+"}", ph.ListSingle)
+	})
 
 	sm.Group(func(r chi.Router) {
 		r.Use(ph.MiddlewareValidateProduct)
@@ -84,6 +95,17 @@ func main() {
 		r.Use(ph.MiddlewareValidateProduct)
 		r.Put("/{name}", ph.UpdateProducts)
 	})
+
+	sm.Delete("/{name:"+namePattern+"}", ph.Delete)
+
+	opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
+	dh := middleware.Redoc(opts, nil)
+
+	sm.Get("/docs", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		dh.ServeHTTP(w, r)
+	}))
+
+	sm.Get("/swagger.yaml", http.FileServer(http.Dir("./")).ServeHTTP)
 
 	s := &http.Server{
 		Addr:         ":9090",

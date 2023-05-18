@@ -1,0 +1,165 @@
+basePath: /
+consumes:
+    - application/json
+definitions:
+    GenericError:
+        properties:
+            message:
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: practice/handlers
+    Product:
+        description: Product defines the structure for an API product
+        properties:
+            CreatedOn:
+                type: string
+            DeletedOn:
+                type: string
+            Description:
+                type: string
+            ID:
+                format: int64
+                type: integer
+            Name:
+                type: string
+            Price:
+                format: float
+                type: number
+            SKU:
+                type: string
+            UpdatedOn:
+                type: string
+        type: object
+        x-go-package: practice/data
+    ProductInfo:
+        description: Product defines the structure for an API product
+        properties:
+            description:
+                type: string
+                x-go-name: Description
+            id:
+                format: uuid
+                type: string
+                x-go-name: ID
+            name:
+                type: string
+                x-go-name: Name
+            price:
+                format: float
+                type: number
+                x-go-name: Price
+            sku:
+                type: string
+                x-go-name: SKU
+        type: object
+        x-go-package: practice/data
+    ValidationError:
+        description: ValidationError is a collection of validation error messages
+        properties:
+            messages:
+                items:
+                    type: string
+                type: array
+                x-go-name: Messages
+        type: object
+        x-go-package: practice/handlers
+info:
+    description: Documentation for Product API
+    title: Pacakge classification of Product API
+    version: 1.0.0
+paths:
+    /products:
+        get:
+            description: Returns a list of products
+            operationId: listProducts
+            responses:
+                "200":
+                    $ref: '#/responses/productResponse'
+            tags:
+                - products
+        post:
+            description: Create a new product
+            operationId: createProduct
+            parameters:
+                - description: |-
+                    Product data structure to Update or Create.
+                    Note: the id field is ignored by update and create operations
+                  in: body
+                  name: Body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/Product'
+            responses:
+                "200":
+                    $ref: '#/responses/productResponse'
+                "422":
+                    $ref: '#/responses/errorValidation'
+                "501":
+                    $ref: '#/responses/errorResponse'
+            tags:
+                - products
+        put:
+            description: Update a products details
+            operationId: updateProduct
+            parameters:
+                - description: |-
+                    Product data structure to Update or Create.
+                    Note: the id field is ignored by update and create operations
+                  in: body
+                  name: Body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/Product'
+            responses:
+                "201":
+                    $ref: '#/responses/noContentResponse'
+                "404":
+                    $ref: '#/responses/errorResponse'
+                "422":
+                    $ref: '#/responses/errorValidation'
+            tags:
+                - products
+    /products/{name}:
+        delete:
+            description: Update a list of products
+            operationId: deleteProduct
+            parameters:
+                - description: The name of the product to delete from the database
+                  in: path
+                  name: name
+                  required: true
+                  type: string
+                  x-go-name: Name
+            responses:
+                "201":
+                    $ref: '#/responses/noContentResponse'
+                "404":
+                    $ref: '#/responses/errorResponse'
+                "501":
+                    $ref: '#/responses/errorResponse'
+            tags:
+                - products
+produces:
+    - application/json
+responses:
+    errorResponse:
+        description: Generic error message returned as a string
+        schema:
+            $ref: '#/definitions/GenericError'
+    errorValidation:
+        description: Validation errors defined as an array of strings
+        schema:
+            $ref: '#/definitions/ValidationError'
+    noContentResponse:
+        description: ""
+    productResponse:
+        description: Data structure representing a single product
+        schema:
+            $ref: '#/definitions/ProductInfo'
+            items:
+                $ref: '#/definitions/ProductInfo'
+            type: array
+schemes:
+    - http
+swagger: "2.0"
