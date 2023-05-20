@@ -14,24 +14,30 @@ import (
 func (p *Products) ListAll(rw http.ResponseWriter, r *http.Request) {
 	// Fetch products from the database or perform any necessary operations
 	p.l.Info("Handle GET Products")
+	// Set the response content type
+	rw.Header().Add("Content-Type", "application/json")
+
 	products, err := p.p.Latest()
 	if err != nil {
 		http.Error(rw, "Unable to retrieve products", http.StatusInternalServerError)
 		return
 	}
 
-	// Set the response content type
-	rw.Header().Set("Content-Type", "application/json")
+	err = data.ToJSON(products, rw)
+	if err != nil {
+		http.Error(rw, "Unable to encode JSON response", http.StatusInternalServerError)
+		return
+	}
 
 	// Write the products as JSON response
 	// err = json.NewEncoder(rw).Encode(products)
-	for _, prod := range products {
-		err = data.ToJSON(prod, rw)
-		if err != nil {
-			http.Error(rw, "Unable to encode JSON response", http.StatusInternalServerError)
-			return
-		}
-	}
+	//for _, prod := range products {
+	//	err = data.ToJSON(prod, rw)
+	//	if err != nil {
+	//		http.Error(rw, "Unable to encode JSON response", http.StatusInternalServerError)
+	//		return
+	//	}
+	//}
 
 }
 
@@ -40,6 +46,8 @@ func (p *Products) ListSingle(rw http.ResponseWriter, r *http.Request) {
 	name := chi.URLParam(r, "name")
 
 	p.l.Info("Get record name", name)
+	// Set the response content type
+	rw.Header().Add("Content-Type", "application/json")
 
 	product, err := p.p.GetProductByName(name)
 	//p.l.Error("Can't get item", "Error", err)

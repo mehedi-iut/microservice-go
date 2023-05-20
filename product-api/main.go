@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"github.com/hashicorp/go-hclog"
 	"github.com/joho/godotenv"
 )
@@ -72,6 +73,15 @@ func main() {
 	////////////////////////////////////////////////////////////
 
 	sm := chi.NewRouter()
+
+	// Configure CORS middleware
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"}, // You can specify specific origins instead of "*"
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},
+	})
+
+	// Apply CORS middleware to the router
+	sm.Use(corsHandler.Handler)
 
 	// Define a regular expression pattern to match names starting with a capital or lowercase letter
 	namePattern := `^[A-Za-z]\w*$`

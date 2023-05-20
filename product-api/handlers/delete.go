@@ -17,6 +17,7 @@ func (p *Products) Delete(rw http.ResponseWriter, r *http.Request) {
 	name := chi.URLParam(r, "name")
 
 	p.l.Info("Deleting Product", name)
+	rw.Header().Add("Content-Type", "application/json")
 
 	err := p.p.DeleteProductByName(name)
 	if err == data.ErrProductNotFound {

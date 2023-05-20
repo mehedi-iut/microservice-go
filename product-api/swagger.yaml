@@ -3,67 +3,85 @@ consumes:
     - application/json
 definitions:
     GenericError:
+        description: GenericError generic error
         properties:
             message:
+                description: message
                 type: string
                 x-go-name: Message
         type: object
-        x-go-package: practice/handlers
+        x-go-package: practice/sdk/models
     Product:
-        description: Product defines the structure for an API product
+        description: Product Product defines the structure for an API product
         properties:
             CreatedOn:
+                description: created on
                 type: string
             DeletedOn:
+                description: deleted on
                 type: string
             Description:
+                description: description
                 type: string
             ID:
+                description: ID
                 format: int64
                 type: integer
             Name:
+                description: name
                 type: string
             Price:
+                description: price
                 format: float
                 type: number
             SKU:
+                description: s k u
                 type: string
             UpdatedOn:
+                description: updated on
                 type: string
         type: object
-        x-go-package: practice/data
+        x-go-package: practice/sdk/models
     ProductInfo:
-        description: Product defines the structure for an API product
+        description: ProductInfo Product defines the structure for an API product
         properties:
             description:
+                description: description
                 type: string
                 x-go-name: Description
             id:
+                description: |-
+                    ID
+                    Format: uuid
                 format: uuid
                 type: string
                 x-go-name: ID
             name:
+                description: name
                 type: string
                 x-go-name: Name
             price:
+                description: price
                 format: float
                 type: number
                 x-go-name: Price
             sku:
+                description: s k u
                 type: string
                 x-go-name: SKU
         type: object
-        x-go-package: practice/data
+        x-go-package: practice/sdk/models
     ValidationError:
-        description: ValidationError is a collection of validation error messages
+        description: ValidationError ValidationError is a collection of validation error messages
         properties:
             messages:
+                description: messages
                 items:
                     type: string
                 type: array
                 x-go-name: Messages
         type: object
-        x-go-package: practice/handlers
+        x-go-package: practice/sdk/models
 info:
     description: Documentation for Product API
     title: Pacakge classification of Product API
