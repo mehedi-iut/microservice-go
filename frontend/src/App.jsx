@@ -1,4 +1,10 @@
 import React from 'react';
+import {
+    BrowserRouter as Router,
+    Routes,
+    Route,
+} from "react-router-dom";
+
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import Form from 'react-bootstrap/Form';
@@ -8,6 +14,7 @@ import './App.css';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import CoffeeList from "./CoffeeList.jsx"
+import Admin from "./Admin.jsx";
 
 function App(){
     return (
@@ -20,7 +27,7 @@ function App(){
                         <Nav.Link href="#home">Home</Nav.Link>
                         <Nav.Link href="#link">Link</Nav.Link>
                     </Nav>
-                    <Form inline>
+                    <Form inline="true">
                         <div className="search-container">
                             <FormControl type="text" placeholder="Search" className="mr-sm-2" />
                             <Button variant="outline-success">Search</Button>
@@ -29,7 +36,11 @@ function App(){
                     </Form>
                 </Navbar.Collapse>
             </Navbar>
-            <CoffeeList />
+            <Routes>
+                <Route path="/admin" element={<Admin/>}/>
+                <Route path="/" element={<CoffeeList/>}/>
+            </Routes>
+
         </div>
     )
 }
